@@ -128,9 +128,12 @@ data class Vector(
 }
 
 
-fun vector(x: Float = 0f, y: Float = 0f, z:Float = 0f) = Vector(x, y, z)
+fun vector(x: Float = 0f, y: Float = 0f, z: Float = 0f) = Vector(x, y, z)
 fun vectorRandom2D(): Vector {
-    val vector = vector(Random.nextFloat(),Random.nextFloat(),0f)
+
+    fun randomSign() = if (Random.nextInt() % 2 == 0) 1 else -1
+
+    val vector = vector(randomSign() * Random.nextFloat(), randomSign() * Random.nextFloat(), 0f)
     vector.normalize()
     return vector
 }
