@@ -30,6 +30,36 @@ object Window {
     val HEIGHT_DP_VALUE = if (DEBUG) 800.dp.value else 800.dp.value
 }
 
+fun <T> withRandomSign(action: (sign: Int) -> T): T {
+    val sign = if (Random.nextInt() % 2 == 0) 1 else -1
+    return action.invoke(sign)
+}
+
+fun randomFloat(from: Float, to: Float, randomSign: Boolean = false): Float {
+    val random =
+        withRandomSign { Random.nextDouble(from.toDouble(), to.toDouble()).toFloat() * if (randomSign) it else 1 }
+    return if (random == 0f) {
+        randomFloat(from, to, randomSign)
+    } else {
+        random
+    }
+}
+
+
+fun randomFloat(value: Float = 0f, randomSign: Boolean = false): Float {
+    val random = when (value) {
+        0f -> withRandomSign { Random.nextFloat() * if (randomSign) it else 1 }
+        else -> withRandomSign { Random.nextDouble(value.toDouble()).toFloat() * if (randomSign) it else 1 }
+    }
+    return if (random == 0f) {
+        randomFloat(value, randomSign)
+    } else {
+        random
+    }
+}
+
+
+fun distance(x1: Float, x2: Float, y1: Float, y2: Float): Float = sqrt((y2 - y1).pow(2) + (x2 - x1).pow(2))
 
 fun Preview(
     modifier: Modifier = Modifier,
@@ -41,7 +71,7 @@ fun Preview(
         resizable = false,
         centered = true,
     ) {
-        MaterialTheme(typography = Typography) {
+        MaterialTheme() {
             Box(
                 modifier = modifier.fillMaxSize()
             ) {
@@ -51,18 +81,6 @@ fun Preview(
     }
 }
 
-val StarWars = FontFamily(
-    Font("fonts/starwars.otf", FontWeight.Normal),
-)
-
-val Typography = Typography(
-    h1 = TextStyle(
-        fontFamily = StarWars,
-        fontWeight = FontWeight.Normal,
-        fontSize = 24.sp,
-        color = Color.White
-    )
-)
 
 fun main() {
     val vector = Vector(1f, 1f, 1f)
@@ -121,19 +139,22 @@ data class Vector(
     }
 
     operator fun div(value: Float) {
-        this.x /= value
-        this.y /= value
-        this.z /= value
+        if (value > 0) {
+            this.x /= value
+            this.y /= value
+            this.z /= value
+        }
     }
 }
 
 
 fun vector(x: Float = 0f, y: Float = 0f, z: Float = 0f) = Vector(x, y, z)
+
 fun vectorRandom2D(): Vector {
-
-    fun randomSign() = if (Random.nextInt() % 2 == 0) 1 else -1
-
-    val vector = vector(randomSign() * Random.nextFloat(), randomSign() * Random.nextFloat(), 0f)
+    val vector = vector(randomFloat(randomSign = true), randomFloat(randomSign = true), 0f)
     vector.normalize()
+    if (vector.x == 0f || vector.y == 0f) {
+        return vectorRandom2D()
+    }
     return vector
 }

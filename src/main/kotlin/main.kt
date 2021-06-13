@@ -24,11 +24,12 @@ class Scene {
 
     fun setupScene() {
         sceneEntity.clear()
-        repeat(100 * 8) {
-            boids.add(Boid())
+        repeat(10 * 1) {
+            boids.add(Boid(it))
         }
         sceneEntity.addAll(boids)
     }
+
 
     fun update() {
         for (entity in sceneEntity) {
@@ -50,6 +51,9 @@ class Scene {
                 val step = frameState.value
 
                 for (boid in boids) {
+                    if (boid.isConfigured) {
+                        boid.applyAlignment(boids)
+                    }
                     drawBoid(boid)
                 }
             }
@@ -58,6 +62,17 @@ class Scene {
     }
 }
 
+fun Boolean.onFalse(action: () -> Unit) {
+    if (!this) {
+        action.invoke()
+    }
+}
+
+fun Boolean.onTrue(action: () -> Unit) {
+    if (this) {
+        action.invoke()
+    }
+}
 
 @Composable
 fun StepFrame(callback: () -> Unit): State<Long> {
