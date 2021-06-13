@@ -12,21 +12,26 @@ fun randomVelocity() = (2..5).random().toFloat()
 fun randomAcceleration() = (1..2).random().toFloat()
 
 data class Boid(
-    var position: Vector = Vector(0f, 0f),
-    var velocity: UnitVector = UnitVector(2f, 2f),
-    var acceleration: UnitVector = createRandomUnitVector(12f, 12f),
+    var position: Vector = vector(),
+    var velocity: Vector = vectorRandom2D(),
+    var acceleration: Vector = vector(),
 ) : SceneEntity() {
 
-    var canvasWidth = 0f
-    var canvasHeight = 0f
+    var canvasWidth: Float = 0f
+    var canvasHeight: Float = 0f
 
     override fun update(scene: Scene) {
-        acceleration = UnitVector(randomFloat(100f,200f), randomFloat(100f,200f))
         position + velocity
         velocity + acceleration
-        velocity.limit(10f)
 
     }
+
+    fun reset() {
+        position = vector(canvasWidth / 2, canvasHeight / 2)
+        velocity = Vector(0f, 0f, 0f)
+        acceleration = Vector(0f, 0f, 0f)
+    }
+
 
 }
 

@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -25,6 +26,8 @@ object Window {
     val DEBUG = true
     val WIDTH = if (DEBUG) 800 else 1200
     val HEIGHT = if (DEBUG) 800 else 800
+    val WIDTH_DP_VALUE = if (DEBUG) 800.dp.value else 1200.dp.value
+    val HEIGHT_DP_VALUE = if (DEBUG) 800.dp.value else 800.dp.value
 }
 
 
@@ -62,20 +65,23 @@ val Typography = Typography(
 )
 
 fun main() {
-    val vector = Vector(2f, 2f)
+    val vector = Vector(1f, 1f, 1f)
     println(vector.magnitude)
     vector.setMagnitude(10f)
     println(vector)
     println(vector.magnitude)
+    val randomVector = vectorRandom2D()
+    println(randomVector)
+    println(randomVector.magnitude)
 }
 
-abstract class VectorCollection(
-    open var x: Float,
-    open var y: Float,
+data class Vector(
+    var x: Float,
+    var y: Float,
+    var z: Float,
 ) {
-
     var magnitude: Float = 0.0f
-        get() = sqrt(x.pow(2) + y.pow(2))
+        get() = sqrt(x.pow(2) + y.pow(2) + z.pow(2))
         private set
 
     fun normalize() {
@@ -96,51 +102,35 @@ abstract class VectorCollection(
     }
 
 
-    operator fun plus(that: VectorCollection) {
+    operator fun plus(that: Vector) {
         this.x += that.x
         this.y += that.y
+        this.z += that.z
     }
 
-    operator fun minus(that: VectorCollection) {
+    operator fun minus(that: Vector) {
         this.x -= that.x
         this.y -= that.y
+        this.z -= that.z
     }
 
     operator fun times(value: Float) {
         this.x *= value
         this.y *= value
+        this.z *= value
     }
 
     operator fun div(value: Float) {
         this.x /= value
         this.y /= value
+        this.z /= value
     }
 }
 
-data class Vector(
-    override var x: Float,
-    override var y: Float,
-) : VectorCollection(x, y)
 
-data class UnitVector(
-    override var x: Float,
-    override var y: Float,
-) : VectorCollection(x, y) {
-
-
-
-
+fun vector(x: Float = 0f, y: Float = 0f, z:Float = 0f) = Vector(x, y, z)
+fun vectorRandom2D(): Vector {
+    val vector = vector(Random.nextFloat(),Random.nextFloat(),0f)
+    vector.normalize()
+    return vector
 }
-
-fun randomFloat(from: Float, to: Float) = Random.nextDouble(from.toDouble(), to.toDouble()).toFloat()
-
-fun createRandomUnitVector(uptoX: Float, uptoY: Float) =
-    Vector(randomFloat(0f, uptoX), randomFloat(0f, uptoY)).toUnitVector()
-
-fun Vector.toUnitVector(): UnitVector {
-    val unit = UnitVector(this.x, this.y)
-    unit.setMagnitude(1f)
-    return unit
-}
-
-fun UnitVector.toVector(): Vector = Vector(this.x, this.y)
