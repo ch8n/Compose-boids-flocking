@@ -5,5 +5,5 @@ pluginManagement {
     }
     
 }
-rootProject.name = "birds"
+rootProject.name = "compose-boids"
 

@@ -1,15 +1,9 @@
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 fun main() {
     Preview {
@@ -26,14 +20,14 @@ class Scene {
 
     var sceneEntity = mutableStateListOf<SceneEntity>()
 
-    var birds = mutableListOf<Bird>()
+    var boids = mutableListOf<Boid>()
 
     fun setupScene() {
         sceneEntity.clear()
         repeat(1) {
-            birds.add(Bird())
+            boids.add(Boid())
         }
-        sceneEntity.addAll(birds)
+        sceneEntity.addAll(boids)
     }
 
     fun update() {
@@ -55,8 +49,8 @@ class Scene {
             ) {
                 val step = frameState.value
 
-                for (bird in birds) {
-                    drawBird(bird)
+                for (boid in boids) {
+                    drawBoid(boid)
                 }
             }
         }
