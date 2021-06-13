@@ -10,6 +10,9 @@ sealed class SceneEntity {
 fun randomVelocity() = (2..5).random().toFloat()
 fun randomAcceleration() = (1..2).random().toFloat()
 
+const val VISIBLE_DISTANCE = 100
+const val MAX_FORCE = 1.1f
+
 data class Boid(
     var id: Int,
     var position: Vector = vector(),
@@ -21,7 +24,6 @@ data class Boid(
     val isConfigured get() = _isConfigured
     private var canvasWidth: Float = 0f
     private var canvasHeight: Float = 0f
-    private val VISIBLE_DISTANCE = 100
 
     fun setup(canvasSize: Size) = _isConfigured.onFalse {
         // use this as constructor
@@ -57,6 +59,7 @@ data class Boid(
         if (averageCounter > 0) {
             steeringForceVector.div(averageCounter.toFloat())
             steeringForceVector.minus(this.velocity)
+            steeringForceVector.limit(MAX_FORCE)
         }
         return steeringForceVector
     }
@@ -68,9 +71,6 @@ data class Boid(
 
     fun reset() {
         _isConfigured = false
-        position = vector(randomFloat(canvasWidth), randomFloat(canvasHeight))
-        velocity = vectorRandom2D()
-        velocity.setMagnitude(randomFloat(2f, 4f))
     }
 
 

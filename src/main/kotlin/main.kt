@@ -24,7 +24,7 @@ class Scene {
 
     fun setupScene() {
         sceneEntity.clear()
-        repeat(10 * 1) {
+        repeat( 1) {
             boids.add(Boid(it))
         }
         sceneEntity.addAll(boids)
