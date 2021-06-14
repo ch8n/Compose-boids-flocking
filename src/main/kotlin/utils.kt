@@ -23,11 +23,11 @@ import kotlin.random.Random
 
 
 object Window {
-    val DEBUG = true
-    val WIDTH = if (DEBUG) 800 else 1200
-    val HEIGHT = if (DEBUG) 800 else 800
-    val WIDTH_DP_VALUE = if (DEBUG) 800.dp.value else 1200.dp.value
-    val HEIGHT_DP_VALUE = if (DEBUG) 800.dp.value else 800.dp.value
+    val DEBUG = false
+    val WIDTH = 1200
+    val HEIGHT = 800
+    val WIDTH_DP_VALUE = 1200.dp.value
+    val HEIGHT_DP_VALUE = 800.dp.value
 }
 
 fun <T> withRandomSign(action: (sign: Int) -> T): T {

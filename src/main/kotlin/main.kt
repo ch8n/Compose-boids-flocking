@@ -24,7 +24,7 @@ class Scene {
 
     fun setupScene() {
         sceneEntity.clear()
-        repeat( 1) {
+        repeat( 100 * 1) {
             boids.add(Boid(it))
         }
         sceneEntity.addAll(boids)
@@ -52,7 +52,7 @@ class Scene {
 
                 for (boid in boids) {
                     if (boid.isConfigured) {
-                        boid.applyAlignment(boids)
+                        boid.applyNature(boids)
                     }
                     drawBoid(boid)
                 }
