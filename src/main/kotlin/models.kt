@@ -89,24 +89,28 @@ data class Boid(
     }
 
     private fun seperation(boids: List<Boid>): Vector {
+        val perceptionRadius = 50
+        val maxForce = 0.26f
+        val maxSpeed = 4f
         val seperationVector = vector()
         var averageCounter = 0
         boids.filter { it.id != id }.forEach { boid ->
             val (currX, curry) = this.position
             val (boidX, boidY) = boid.position
             val distance = distance(currX, boidX, curry, boidY)
-//            if (distance < VISIBLE_DISTANCE) {
-//                val difference = this.copy().position
-//                difference.minus(boid.position)
-//                difference.div(distance)
-//                seperationVector + boid.position
-//                ++averageCounter
-//            }
+            if (distance < perceptionRadius) {
+                val difference = this.position.copy()
+                difference.minus(boid.position)
+                difference.div(distance)
+                seperationVector + difference
+                ++averageCounter
+            }
         }
         if (averageCounter > 0) {
             seperationVector.div(averageCounter.toFloat())
-            // seperationVector.limit(MAX_FORCE)
-           // seperationVector.setMagnitude(MAX_SPEED)
+            seperationVector.setMagnitude(maxSpeed)
+            seperationVector.minus(velocity)
+            seperationVector.setMagnitude(maxForce)
         }
         return seperationVector
     }
@@ -115,10 +119,11 @@ data class Boid(
         acceleration * 0f
         val steeringForce = steering(boids)
         val steeringPosition = cohesion(boids)
-        ////val seperationPosition = seperation(boids)
-//        this.acceleration + seperationPosition
+        val seperationPosition = seperation(boids)
+        this.acceleration + seperationPosition
         this.acceleration + steeringForce
         this.acceleration + steeringPosition
+
     }
 
 
@@ -132,10 +137,7 @@ data class Boid(
             position.y > canvasHeight -> position.y = 0f
             position.y < 0 -> position.y = canvasHeight
         }
-
     }
-
-
 }
 
 
@@ -145,5 +147,11 @@ fun DrawScope.drawBoid(boid: Boid) {
         color = if (boid.id == 1) Color.Cyan else Color.White,
         radius = 10f,
         center = Offset(boid.position.x, boid.position.y)
+    )
+    drawLine(
+        color = Color.White,
+        start = Offset(boid.position.x,boid.position.y),
+        end = Offset(boid.position.x,boid.position.y + 20f),
+        strokeWidth = 8f
     )
 }
