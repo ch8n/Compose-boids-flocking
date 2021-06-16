@@ -8,24 +8,28 @@ sealed class SceneEntity {
 }
 
 data class Boid(
-    var id: Int,
-    var position: Vector = vector(),
-    var velocity: Vector = vector(),
-    var acceleration: Vector = vector(),
+    var id: Int
 ) : SceneEntity() {
 
+    private var acceleration: Vector = vector()
+    private var velocity: Vector = vectorRandom2D()
+    var position: Vector = vector()
+    private val maxSpeed = 3f
+    private val maxForce = 0.05f
+
     private var _isConfigured = false
-    val isConfigured get() = _isConfigured
     private var canvasWidth: Float = 0f
     private var canvasHeight: Float = 0f
+
+    val isConfigured get() = _isConfigured
 
     fun setup(canvasSize: Size) = _isConfigured.onFalse {
         // use this as constructor
         val (height, width) = canvasSize
         canvasHeight = height
         canvasWidth = width
+
         position = vector(randomFloat(canvasWidth, randomSign = true), randomFloat(canvasHeight, randomSign = true))
-        //position = vector(canvasWidth / 2, canvasHeight / 2)
         velocity = vectorRandom2D()
         velocity.setMagnitude(randomFloat(2f, 4f, randomSign = true))
         _isConfigured = true
@@ -33,18 +37,20 @@ data class Boid(
 
     override fun update(scene: Scene) {
         velocity + acceleration
+        velocity.limit(maxSpeed)
         position + velocity
+        acceleration.times(0f)
         if (position.x < 0 || position.x > canvasWidth || position.y < 0 || position.y > canvasHeight) {
             reset()
         }
     }
 
+    // alignment
     private fun steering(boids: List<Boid>): Vector {
         val perceptionRadius = 50
-        val maxForce = 0.2f
-        val maxSpeed = 4f
         val steeringForceVector = vector()
         var averageCounter = 0
+
         boids.filter { it.id != id }.forEach { boid ->
             val (currX, curry) = this.position
             val (boidX, boidY) = boid.position
@@ -54,21 +60,23 @@ data class Boid(
                 ++averageCounter
             }
         }
+
         if (averageCounter > 0) {
             steeringForceVector.div(averageCounter.toFloat())
             steeringForceVector.setMagnitude(maxSpeed)
             steeringForceVector.minus(this.velocity)
-            steeringForceVector.setMagnitude(maxForce)
+            steeringForceVector.limit(maxForce)
         }
+
         return steeringForceVector
     }
 
+    // cohesion
     private fun cohesion(boids: List<Boid>): Vector {
         val perceptionRadius = 50
-        val maxForce = 0.2f
-        val maxSpeed = 4f
         val steeringPositionVector = vector()
         var averageCounter = 0
+
         boids.filter { it.id != id }.forEach { boid ->
             val (currX, curry) = this.position
             val (boidX, boidY) = boid.position
@@ -78,22 +86,23 @@ data class Boid(
                 ++averageCounter
             }
         }
+
         if (averageCounter > 0) {
             steeringPositionVector.div(averageCounter.toFloat())
             steeringPositionVector.minus(this.position)
             steeringPositionVector.setMagnitude(maxSpeed)
             steeringPositionVector.minus(this.velocity)
-            steeringPositionVector.setMagnitude(maxForce)
+            steeringPositionVector.limit(maxForce)
         }
+
         return steeringPositionVector
     }
 
-    private fun seperation(boids: List<Boid>): Vector {
+    private fun separation(boids: List<Boid>): Vector {
         val perceptionRadius = 50
-        val maxForce = 0.26f
-        val maxSpeed = 4f
-        val seperationVector = vector()
+        val separationVector = vector()
         var averageCounter = 0
+
         boids.filter { it.id != id }.forEach { boid ->
             val (currX, curry) = this.position
             val (boidX, boidY) = boid.position
@@ -101,29 +110,39 @@ data class Boid(
             if (distance < perceptionRadius) {
                 val difference = this.position.copy()
                 difference.minus(boid.position)
+                difference.normalize()
                 difference.div(distance)
-                seperationVector + difference
+                separationVector + difference
                 ++averageCounter
             }
         }
+
         if (averageCounter > 0) {
-            seperationVector.div(averageCounter.toFloat())
-            seperationVector.setMagnitude(maxSpeed)
-            seperationVector.minus(velocity)
-            seperationVector.setMagnitude(maxForce)
+            separationVector.div(averageCounter.toFloat())
         }
-        return seperationVector
+
+        if (separationVector.magnitude > 0) {
+            separationVector.setMagnitude(maxSpeed)
+            separationVector.minus(velocity)
+            separationVector.setMagnitude(maxForce)
+        }
+
+        return separationVector
     }
 
-    fun applyNature(boids: List<Boid>) {
-        acceleration * 0f
+    fun applyNature(boids: List<Boid>, forces: Triple<Float, Float, Float>) {
         val steeringForce = steering(boids)
-        val steeringPosition = cohesion(boids)
-        val seperationPosition = seperation(boids)
-        this.acceleration + seperationPosition
+        val positionForce = cohesion(boids)
+        val separationForce = separation(boids)
+        // random weight these forces
+        val (weightSep, weightAlig, weightCohision) = forces
+        separationForce.times(weightSep)
+        steeringForce.times(weightAlig)
+        positionForce.times(weightCohision)
+        // apply forces
+        this.acceleration + separationForce
         this.acceleration + steeringForce
-        this.acceleration + steeringPosition
-
+        this.acceleration + positionForce
     }
 
 
@@ -147,11 +166,5 @@ fun DrawScope.drawBoid(boid: Boid) {
         color = if (boid.id == 1) Color.Cyan else Color.White,
         radius = 10f,
         center = Offset(boid.position.x, boid.position.y)
-    )
-    drawLine(
-        color = Color.White,
-        start = Offset(boid.position.x,boid.position.y),
-        end = Offset(boid.position.x,boid.position.y + 20f),
-        strokeWidth = 8f
     )
 }

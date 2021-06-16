@@ -24,10 +24,8 @@ import kotlin.random.Random
 
 object Window {
     val DEBUG = false
-    val WIDTH = 1200
-    val HEIGHT = 800
-    val WIDTH_DP_VALUE = 1200.dp.value
-    val HEIGHT_DP_VALUE = 800.dp.value
+    val WIDTH = 720
+    val HEIGHT = 400
 }
 
 fun <T> withRandomSign(action: (sign: Int) -> T): T {
@@ -95,7 +93,7 @@ data class Vector(
 
     fun limit(maxMagnitude: Float) {
         if (magnitude > maxMagnitude) {
-            this / maxMagnitude
+            setMagnitude(maxMagnitude)
         }
     }
 
@@ -135,9 +133,9 @@ data class Vector(
 
 fun vector(x: Float = 0f, y: Float = 0f, z: Float = 0f) = Vector(x, y, z)
 
+// random 2D unit vector
 fun vectorRandom2D(): Vector {
     val vector = vector(randomFloat(randomSign = true), randomFloat(randomSign = true), 0f)
-    vector.normalize()
     vector.normalize()
     return vector
 }
