@@ -1,3 +1,4 @@
+
 # Compose-boids-flocking
 Jetpack compose Boids | Flocking bird or Fish simulation using Jetpack Compose Desktop 🚀, using Canvas API 🎨
 
@@ -7,8 +8,12 @@ Jetpack compose Boids | Flocking bird or Fish simulation using Jetpack Compose D
 
 ## Preview :movie_camera:
 <br>
-<img src="preview-fruit-ninja.gif"/>
+<img src="https://user-images.githubusercontent.com/11576342/122658135-4bf3ef80-d187-11eb-9544-8eb388ce82a1.gif"/>
 <br>
+
+## Inspired from
+[Flocking Boids Challenge @CodingTrain](https://www.youtube.com/watch?v=mhjuuHl6qHM&t=1975s&ab_channel=JetBrainsTVJetBrainsTVVerified)
+
 
 ## Other stuff I build
 - [Compose Fruit Ninja 🥝](https://github.com/ch8n/Compose-Fruit-Ninja)
