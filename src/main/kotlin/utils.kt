@@ -25,7 +25,7 @@ import kotlin.random.Random
 object Window {
     val DEBUG = false
     val WIDTH = 720
-    val HEIGHT = 400
+    val HEIGHT = 480
 }
 
 fun <T> withRandomSign(action: (sign: Int) -> T): T {
@@ -49,7 +49,7 @@ fun Preview(
     content: @Composable () -> Unit
 ) {
     Window(
-        title = "Compose-Bird-Debug",
+        title = "Compose-Ants-Debug",
         size = IntSize(Window.WIDTH, Window.HEIGHT),
         resizable = false,
         centered = true,

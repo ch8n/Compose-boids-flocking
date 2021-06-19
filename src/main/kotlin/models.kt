@@ -1,11 +1,20 @@
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.*
+import org.jetbrains.skija.ImageInfo
+import java.lang.Math.abs
 
 sealed class SceneEntity {
     abstract fun update(scene: Scene)
 }
+
+data class Forces(
+    val weightSeparation: Float,
+    val weightAlignment: Float,
+    val weightCohesion: Float,
+    val weightPush: Float
+)
 
 data class Boid(
     var id: Int
@@ -43,6 +52,23 @@ data class Boid(
         if (position.x < 0 || position.x > canvasWidth || position.y < 0 || position.y > canvasHeight) {
             reset()
         }
+    }
+
+    //push force
+    fun push(playerPosition: Vector): Vector {
+        val perceptionRadius = 50
+        val pushDistance = vector()
+        val (playerX, playerY) = playerPosition
+        val (boidX, boidY) = this.position
+        val distance = distance(playerX, boidX, playerY, boidY)
+        if (distance < perceptionRadius) {
+            pushDistance + position
+            pushDistance - playerPosition
+            pushDistance.setMagnitude(maxSpeed)
+            pushDistance - velocity
+            pushDistance.limit(maxForce)
+        }
+        return pushDistance
     }
 
     // alignment
@@ -130,19 +156,21 @@ data class Boid(
         return separationVector
     }
 
-    fun applyNature(boids: List<Boid>, forces: Triple<Float, Float, Float>) {
+    fun applyNature(boids: List<Boid>, forces: Forces, playerPosition: Vector) {
         val steeringForce = steering(boids)
         val positionForce = cohesion(boids)
         val separationForce = separation(boids)
+        val pushForce = push(playerPosition)
         // random weight these forces
-        val (weightSep, weightAlig, weightCohision) = forces
-        separationForce.times(weightSep)
-        steeringForce.times(weightAlig)
-        positionForce.times(weightCohision)
+        separationForce.times(forces.weightSeparation)
+        steeringForce.times(forces.weightAlignment)
+        positionForce.times(forces.weightCohesion)
+        pushForce.times(forces.weightPush)
         // apply forces
         this.acceleration + separationForce
         this.acceleration + steeringForce
         this.acceleration + positionForce
+        this.acceleration + pushForce
     }
 
 
@@ -162,9 +190,22 @@ data class Boid(
 
 fun DrawScope.drawBoid(boid: Boid) {
     boid.setup(size)
-    drawCircle(
-        color = if (boid.id == 1) Color.Cyan else Color.White,
-        radius = 10f,
-        center = Offset(boid.position.x, boid.position.y)
+    val (boidX, boidY) = boid.position
+    val offset = Offset(boidX, boidY)
+    drawLine(
+        color = Color.White,
+        start = offset,
+        end = offset.copy(y = offset.y + 8f),
+        strokeWidth = 3f
     )
 }
+
+fun DrawScope.drawPlayer(posVector: Vector) {
+    val offset = Offset(posVector.x, posVector.y)
+    drawCircle(
+        color = Color.White,
+        radius = 10f,
+        center = offset
+    )
+}
+

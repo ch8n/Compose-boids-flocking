@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerMoveFilter
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 fun main() {
     Preview {
@@ -28,7 +30,7 @@ class Scene {
 
     fun setupScene() {
         sceneEntity.clear()
-        repeat(100) {
+        repeat(200) {
             boids.add(Boid(it))
         }
         sceneEntity.addAll(boids)
@@ -43,7 +45,17 @@ class Scene {
 
     @Composable
     fun render(frameState: State<Long>) {
-        var forces by remember { mutableStateOf(Triple(2.5f, 1.0f, 1.0f)) }
+        var forces by remember {
+            mutableStateOf(
+                Forces(
+                    randomFloat(0f, 10f),
+                    randomFloat(0f, 10f),
+                    randomFloat(0f, 10f),
+                    randomFloat(50f, 75f)
+                )
+            )
+        }
+        var player by remember { mutableStateOf(vector(0f, 0f)) }
 
         Column(
             modifier = Modifier.fillMaxWidth().fillMaxHeight()
@@ -53,13 +65,21 @@ class Scene {
                 Canvas(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = Color.Black),
+                        .background(color = Color.Black)
+                        .pointerMoveFilter(
+                            onMove = { move ->
+                                player.x = move.x
+                                player.y = move.y
+                                true
+                            }
+                        ),
                 ) {
                     val step = frameState.value
 
+                    drawPlayer(player)
                     for (boid in boids) {
                         if (boid.isConfigured) {
-                            boid.applyNature(boids, forces)
+                            boid.applyNature(boids, forces, player)
                         }
                         drawBoid(boid)
                     }
@@ -68,29 +88,42 @@ class Scene {
                 Column(
                     modifier = Modifier.width(200.dp)
                         .padding(16.dp)
-                        .offset(((Window.WIDTH + 100) / 2).dp)
+                        .offset(((Window.WIDTH + 200) / 2).dp)
                 ) {
-                    Text(text = "Alignment \n [${forces.first}]", color = Color.White)
+
+
+                    Text(text = "Ant Flocking System", color = Color.White, fontSize = 26.sp)
+                    Spacer(Modifier.height(18.dp))
+
+                    Text(text = "Alignment \n [${forces.weightAlignment}]", color = Color.White)
                     Slider(
-                        value = forces.first,
+                        value = forces.weightAlignment,
                         valueRange = 0f..10f,
-                        onValueChange = { forces = forces.copy(first = it) },
+                        onValueChange = { forces = forces.copy(weightAlignment = it) },
                     )
 
                     Spacer(Modifier.height(18.dp))
-                    Text(text = "Cohesion \n [${forces.second}]", color = Color.White)
+                    Text(text = "Cohesion \n [${forces.weightCohesion}]", color = Color.White)
                     Slider(
-                        value = forces.second,
+                        value = forces.weightCohesion,
                         valueRange = 0f..10f,
-                        onValueChange = { forces = forces.copy(second = it) }
+                        onValueChange = { forces = forces.copy(weightCohesion = it) },
                     )
 
                     Spacer(Modifier.height(18.dp))
-                    Text(text = "Seperation \n [${forces.third}]", color = Color.White)
+                    Text(text = "Separation \n [${forces.weightSeparation}]", color = Color.White)
                     Slider(
-                        value = forces.third,
+                        value = forces.weightSeparation,
                         valueRange = 0f..10f,
-                        onValueChange = { forces = forces.copy(third = it) }
+                        onValueChange = { forces = forces.copy(weightSeparation = it) },
+                    )
+
+                    Spacer(Modifier.height(18.dp))
+                    Text(text = "Player Push \n [${forces.weightPush}]", color = Color.White)
+                    Slider(
+                        value = forces.weightPush,
+                        valueRange = 50f..75f,
+                        onValueChange = { forces = forces.copy(weightPush = it) },
                     )
 
                 }
