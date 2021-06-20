@@ -1,6 +1,6 @@
 
 # Compose-boids-flocking
-Jetpack compose Boids | Flocking bird or Fish simulation using Jetpack Compose Desktop 🚀, using Canvas API 🎨
+Jetpack compose Boids | Flocking Insect. bird or Fish simulation using Jetpack Compose Desktop 🚀, using Canvas API 🎨
 
 ## How to Run
 - From gradle tab from right-hand side
