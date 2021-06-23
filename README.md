@@ -1,5 +1,5 @@
 
-# 🐜🐜🐜🐜🐜 Compose flocking Ants(boids) 🐜🐜🐜🐜🐜  
+# 🐜🐜🐜 Compose flocking Ants(boids) 🐜🐜🐜
 Jetpack compose Boids | Flocking Insect. bird or Fish simulation using Jetpack Compose Desktop 🚀, using Canvas API 🎨
 
 ## How to Run
